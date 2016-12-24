@@ -6,7 +6,7 @@ ENV NPS_VERSION 1.11.33.4
 ENV NGINX_VERSION 1.11.7
 # ENV PATH /usr/local/nginx/sbin/:$PATH
 
-RUN yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel && \
+RUN yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel perl-devel perl-ExtUtils-Embed && \
     yum clean all
 
 RUN useradd -r nginx
@@ -36,6 +36,7 @@ RUN cd /tmp \
     --with-pcre                           \
     --with-file-aio                       \
     --with-http_realip_module             \
+    --with-http_perl_module               \
     --without-http_scgi_module            \
     --without-http_uwsgi_module           \
     --without-http_fastcgi_module \
