@@ -1,8 +1,9 @@
 FROM centos:7
 
 # perl-devel, perl-ExtUtils-Embed for --with-http_perl_module
+# gd-devel for --with-http_image_filter_module
 RUN yum -y install yum-fastestmirror && \
-    yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel perl-devel perl-ExtUtils-Embed && \
+    yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel perl-devel perl-ExtUtils-Embed gd-devel && \
     yum clean all
 
 RUN useradd -r nginx
@@ -25,6 +26,8 @@ RUN cd /tmp && \
     --prefix=/etc/nginx                   \
     --sbin-path=/usr/sbin/nginx           \
     --conf-path=/etc/nginx/nginx.conf     \
+    --http-client-body-temp-path=/var/lib/nginx/tmp/client_body \
+    --http-proxy-temp-path=/var/lib/nginx/tmp/proxy \
     --pid-path=/var/run/nginx.pid         \
     --lock-path=/var/run/nginx.lock       \
     --error-log-path=/var/log/nginx/error.log \
@@ -37,6 +40,7 @@ RUN cd /tmp && \
     --with-file-aio                       \
     --with-http_realip_module             \
     --with-http_perl_module               \
+    --with-http_image_filter_module       \
     --without-http_scgi_module            \
     --without-http_uwsgi_module           \
     --without-http_fastcgi_module && \
