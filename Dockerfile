@@ -1,20 +1,19 @@
 FROM centos:7
 
-EXPOSE 80
+RUN yum -y install yum-fastestmirror && \
+    yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel perl-devel perl-ExtUtils-Embed && \
+    yum clean all
+
+RUN useradd -r nginx
 
 ENV NPS_VERSION 1.11.33.4
 ENV NGINX_VERSION 1.11.7
 # ENV PATH /usr/local/nginx/sbin/:$PATH
 
-RUN yum install -y wget gcc-c++ pcre-devel zlib-devel make unzip openssl-devel perl-devel perl-ExtUtils-Embed && \
-    yum clean all
-
-RUN useradd -r nginx
-
 RUN cd /tmp \
     && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION}-beta.zip \
     && unzip release-${NPS_VERSION}-beta.zip \
-    && cd ngx_pagespeed-release-${NPS_VERSION}-beta/ \
+    && cd incubator-pagespeed-ngx-release-${NPS_VERSION}-beta/ \
     && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz \
     && tar -xzvf ${NPS_VERSION}.tar.gz \
     && cd /tmp \
@@ -28,8 +27,8 @@ RUN cd /tmp \
     --pid-path=/var/run/nginx.pid         \
     --lock-path=/var/run/nginx.lock       \
     --error-log-path=/var/log/nginx/error.log \
-    --http-log-path=/var/log/nginx/access.log \    
-    --add-module=/tmp/ngx_pagespeed-release-${NPS_VERSION}-beta \
+    --http-log-path=/var/log/nginx/access.log \
+    --add-module=/tmp/incubator-pagespeed-ngx-release-${NPS_VERSION}-beta \
     --with-http_gzip_static_module        \
     --with-http_stub_status_module        \
     --with-http_ssl_module                \
