@@ -1,0 +1,57 @@
+FROM debian:stretch-slim
+
+# https://www.modpagespeed.com/doc/build_ngx_pagespeed_from_source
+RUN apt-get update && \
+    apt-get install -y curl wget sudo && \
+    apt-get install -y build-essential zlib1g-dev libpcre3-dev unzip uuid-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd -r nginx
+
+ENV NGINX_VERSION 1.12.2
+# ENV NPS_VERSION 1.12.34.3-stable
+
+# libssl-dev for --with-http_ssl_module
+# libperl-dev for --with-http_perl_module
+RUN apt-get update && \
+    apt-get install -y libssl-dev libperl-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -f -L -sS https://ngxpagespeed.com/install > /tmp/install && \
+    chmod +x /tmp/install && \
+    arg="$arg --prefix=/etc/nginx" && \
+    arg="$arg --sbin-path=/usr/sbin/nginx" && \
+    arg="$arg --conf-path=/etc/nginx/nginx.conf" && \
+    arg="$arg --http-client-body-temp-path=/var/lib/nginx/tmp/client_body" && \
+    arg="$arg --http-proxy-temp-path=/var/lib/nginx/tmp/proxy" && \
+    arg="$arg --pid-path=/var/run/nginx.pid" && \
+    arg="$arg --lock-path=/var/run/nginx.lock" && \
+    arg="$arg --error-log-path=/var/log/nginx/error.log" && \
+    arg="$arg --http-log-path=/var/log/nginx/access.log" && \
+    arg="$arg --with-http_gzip_static_module" && \
+    arg="$arg --with-http_stub_status_module" && \
+    arg="$arg --with-http_ssl_module" && \
+    arg="$arg --with-pcre" && \
+    arg="$arg --with-file-aio" && \
+    arg="$arg --with-http_realip_module" && \
+    arg="$arg --with-http_perl_module" && \
+    arg="$arg --without-http_scgi_module" && \
+    arg="$arg --without-http_uwsgi_module" && \
+    arg="$arg --without-http_fastcgi_module" && \
+    mkdir -p /var/lib/nginx/tmp/client_body && \
+    mkdir -p /var/lib/nginx/tmp/proxy && \
+    bash /tmp/install -y --nginx-version ${NGINX_VERSION} \
+    --additional-nginx-configure-arguments "${arg}" && \
+    rm /tmp/install
+# RUN bash -c 'bash <(curl -f -L -sS https://ngxpagespeed.com/install) -y --nginx-version ${NGINX_VERSION}'
+# bash <(curl -f -L -sS https://ngxpagespeed.com/install) -y --ngx-pagespeed-version ${NPS_VERSION}
+# --additional-nginx-configure-arguments -a '--with-http_ssl_module --with-cc-opt="-I /usr/local/include"'
+
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+
+CMD ["nginx", "-g", "daemon off;"]

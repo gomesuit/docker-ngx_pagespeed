@@ -21,6 +21,8 @@ RUN cd /tmp && \
     cd /tmp && \
     wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
     tar -xvzf nginx-${NGINX_VERSION}.tar.gz && \
+    mkdir -p /var/lib/nginx/tmp/client_body && \
+    mkdir -p /var/lib/nginx/tmp/proxy && \
     cd nginx-${NGINX_VERSION}/ && \
     ./configure \
     --prefix=/etc/nginx                   \
