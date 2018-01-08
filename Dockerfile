@@ -8,7 +8,6 @@ RUN useradd -r nginx
 
 ENV NPS_VERSION 1.12.34.3-stable
 ENV NGINX_VERSION 1.12.2
-# ENV PATH /usr/local/nginx/sbin/:$PATH
 
 RUN cd /tmp \
     && wget https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip \
@@ -44,13 +43,9 @@ RUN cd /tmp \
     && make install \
     && rm -frdv /tmp/*
 
-# COPY ./nginx.conf /usr/local/nginx/conf/nginx.conf
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# RUN ln -sf /dev/stderr /usr/local/nginx/logs/error.log
-# RUN ln -sf /dev/stdout /usr/local/nginx/logs/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 
 CMD ["nginx", "-g", "daemon off;"]
-
