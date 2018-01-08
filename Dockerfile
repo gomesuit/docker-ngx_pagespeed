@@ -6,16 +6,17 @@ RUN yum -y install yum-fastestmirror && \
 
 RUN useradd -r nginx
 
-ENV NPS_VERSION 1.11.33.4
-ENV NGINX_VERSION 1.11.7
+ENV NPS_VERSION 1.12.34.3-stable
+ENV NGINX_VERSION 1.12.2
 # ENV PATH /usr/local/nginx/sbin/:$PATH
 
 RUN cd /tmp \
-    && wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${NPS_VERSION}-beta.zip \
-    && unzip release-${NPS_VERSION}-beta.zip \
-    && cd incubator-pagespeed-ngx-release-${NPS_VERSION}-beta/ \
-    && wget https://dl.google.com/dl/page-speed/psol/${NPS_VERSION}.tar.gz \
-    && tar -xzvf ${NPS_VERSION}.tar.gz \
+    && wget https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip \
+    && unzip v${NPS_VERSION}.zip \
+    && cd incubator-pagespeed-ngx-${NPS_VERSION}/ \
+    && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL) \
+    && wget ${psol_url} \
+    && tar -xzvf $(basename ${psol_url}) \
     && cd /tmp \
     && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -xvzf nginx-${NGINX_VERSION}.tar.gz \
@@ -28,7 +29,7 @@ RUN cd /tmp \
     --lock-path=/var/run/nginx.lock       \
     --error-log-path=/var/log/nginx/error.log \
     --http-log-path=/var/log/nginx/access.log \
-    --add-module=/tmp/incubator-pagespeed-ngx-release-${NPS_VERSION}-beta \
+    --add-module=/tmp/incubator-pagespeed-ngx-${NPS_VERSION} \
     --with-http_gzip_static_module        \
     --with-http_stub_status_module        \
     --with-http_ssl_module                \
